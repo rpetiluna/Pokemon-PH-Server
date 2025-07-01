@@ -1,4 +1,4 @@
-🎮 Game Overview: Pokémon: PH Server
+🎮Pokémon: PH Server
 
 Features:
 ✅Interactive Story Start
