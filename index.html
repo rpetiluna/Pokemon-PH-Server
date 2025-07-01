@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pokémon: PH Server</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-image: url(https://i.redd.it/o8a7u5vl6hb41.png);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      text-align: center;
+      padding: 20px;
+      min-height: 100vh;
+      color: #000;
+    }
+    .hidden { display: none; }
+
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 250px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: 2px solid #333;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+      color: #000;
+      cursor: pointer;
+      margin: 5px;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #ddd;
+    }
+
+    .pokemon-card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px;
+      display: inline-block;
+      width: 200px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .pokemon-card:hover {
+      transform: scale(1.05);
+    }
+
+    .battle-container { margin-top: 20px; }
+
+    .health-bar {
+      width: 100%;
+      height: 20px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      margin: 5px 0;
+    }
+
+    .health { height: 100%; border-radius: 10px; }
+
+    .pokemon-img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .battle-visuals {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+
+    .pokemon-face { text-align: center; }
+
+    .battle-img {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    #player-health, #enemy-health {
+      margin-top: 10px;
+      height: 20px;
+      width: 200px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .battle-actions {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .type-water { background-color: #60a5fa; }
+    .type-grass { background-color: #34d399; }
+    .type-flying { background-color: #a78bfa; }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="title-screen">
+    <h1>Pokémon: PH Server</h1>
+    <p>Get ready to begin your journey in the world of Pokémon!</p>
+    <p>Explore mysterious lands, meet powerful Pokémon, and rise through the ranks to become a true Pokémon Master.</p>
+    <p>Your adventure starts now—choose your Pokémon and let the battle begin!</p>
+    <button id="start-btn">Throw Pokéball!</button>
+  </div>
+
+  <div id="name-screen" class="hidden">
+    <h2>🔴 Welcome to the World of Pokémon!</h2>
+    <p>Before we begin your adventure, we need to know one important thing...</p>
+    <input type="text" id="player-name" placeholder="Every great journey begins with a name!">
+    <button id="confirm-name">Let's Go</button>
+  </div>
+
+  <div id="pokemon-screen" class="hidden">
+    <h2>🔥 It’s Time to Choose Your Pokémon!</h2>
+    <p>Which Pokémon will stand by your side through every battle?</p>
+    <div class="pokemon-card type-water" data-pokemon="Blastoise">
+      <img src="https://www.pngplay.com/wp-content/uploads/10/Blastoise-Pokemon-Free-PNG-Clip-Art.png" class="pokemon-img">
+      <h3>Blastoise</h3>
+      <p>A Water-type powerhouse with high-pressure cannons mounted on its shell. It uses intense water blasts to overpower enemies and protect its Trainer in battle.</p>
+    </div>
+    <div class="pokemon-card type-grass" data-pokemon="Bulbasaur">
+      <img src="https://www.pngplay.com/wp-content/uploads/10/Bulbasaur-Pokemon-Transparent-Images.png" class="pokemon-img">
+      <h3>Bulbasaur</h3>
+      <p>A Grass/Poison-type Pokémon with a plant bulb on its back that grows with sunlight. Calm and loyal, it’s perfect for Trainers who value balance and strategy.</p>
+    </div>
+    <div class="pokemon-card type-flying" data-pokemon="Charizard">
+      <img src="https://www.pngplay.com/wp-content/uploads/10/Charizard-Pokemon-PNG-HD-Free-File-Download.png" class="pokemon-img">
+      <h3>Charizard</h3>
+      <p>A Fire/Flying-type Pokémon known for its fierce flames and powerful wings. It breathes fire hot enough to melt boulders and soars through the skies like a dragon.</p>
+    </div>
+  </div>
+
+  <div id="battle-screen" class="hidden battle-container">
+    <h2>⚠️ A wild Pokémon appeared!</h2>
+    <div class="battle-visuals">
+      <div class="pokemon-face">
+        <img id="player-face" class="battle-img" src="">
+        <div id="player-health"></div>
+      </div>
+      <div class="pokemon-face">
+        <img id="enemy-face" class="battle-img" src="">
+        <div id="enemy-health"></div>
+      </div>
+    </div>
+    <div class="battle-actions">
+      <button id="attack-btn">Attack!</button>
+      <button id="use-item-btn">Use HP!</button>
+      <button id="run-btn">Retreat</button>
+    </div>
+  </div>
+
+  <div id="result-screen" class="hidden">
+    <h2 id="result-message"></h2>
+    <button id="restart-btn">Restart the Game</button>
+  </div>
+
+  <script>
+    let playerName;
+    let playerPokemon;
+    let enemyPokemon = {};
+    let playerHP = 100;
+
+    const pokemonImages = {
+      Blastoise: "https://www.pngplay.com/wp-content/uploads/10/Blastoise-Pokemon-Free-PNG-Clip-Art.png",
+      Bulbasaur: "https://www.pngplay.com/wp-content/uploads/10/Bulbasaur-Pokemon-Transparent-Images.png",
+      Charizard: "https://www.pngplay.com/wp-content/uploads/10/Charizard-Pokemon-PNG-HD-Free-File-Download.png"
+    };
+
+    const enemyOptions = [
+      {
+        name: "Gengar",
+        hp: 100,
+        img: "https://static.wikia.nocookie.net/pokemonunite/images/c/c6/Gengar_art.png"
+      },
+      {
+        name: "Froslass",
+        hp: 100,
+        img: "https://www.pngplay.com/wp-content/uploads/11/Froslass-PNG-HD-Quality.png"
+      },
+      {
+        name: "Malamar",
+        hp: 100,
+        img: "https://archives.bulbagarden.net/media/upload/thumb/5/58/0687Malamar.png/800px-0687Malamar.png"
+      }
+    ];
+
+    document.getElementById('start-btn').onclick = function () {
+      document.getElementById('title-screen').classList.add('hidden');
+      document.getElementById('name-screen').classList.remove('hidden');
+    };
+
+    document.getElementById('confirm-name').onclick = function () {
+      playerName = document.getElementById('player-name').value;
+      if (playerName) {
+        document.getElementById('name-screen').classList.add('hidden');
+        document.getElementById('pokemon-screen').classList.remove('hidden');
+      } else {
+        alert("Type your name");
+      }
+    };
+
+    document.querySelectorAll('.pokemon-card').forEach(card => {
+      card.onclick = function () {
+        playerPokemon = { name: card.dataset.pokemon, hp: 100 };
+        enemyPokemon = structuredClone(enemyOptions[Math.floor(Math.random() * enemyOptions.length)]);
+        document.getElementById('pokemon-screen').classList.add('hidden');
+        document.getElementById('battle-screen').classList.remove('hidden');
+        updateBattleStatus();
+      };
+    });
+
+    document.getElementById('attack-btn').onclick = function () {
+      const damage = Math.floor(Math.random() * 20) + 10;
+      enemyPokemon.hp -= damage;
+      alert(`${playerPokemon.name} used an attack and dealt ${damage} damage!`);
+      if (enemyPokemon.hp <= 0) {
+        endBattle(true);
+      } else {
+        enemyAttack();
+      }
+      updateBattleStatus();
+    };
+
+    document.getElementById('use-item-btn').onclick = function () {
+      playerHP = Math.min(playerHP + 20, 100);
+      alert(`${playerName} used a healing item! HP is now ${playerHP}.`);
+      enemyAttack();
+      updateBattleStatus();
+    };
+
+    document.getElementById('run-btn').onclick = function () {
+      alert("Bolt tayo, 'di ko trip 'to!");
+      endBattle(false);
+    };
+
+    function enemyAttack() {
+      const damage = Math.floor(Math.random() * 20) + 10;
+      playerHP -= damage;
+      alert(`${enemyPokemon.name} attacked and dealt ${damage} damage!`);
+      if (playerHP <= 0) {
+        endBattle(false);
+      }
+    }
+
+    function updateBattleStatus() {
+      document.getElementById('player-face').src = pokemonImages[playerPokemon.name];
+      document.getElementById('enemy-face').src = enemyPokemon.img;
+
+      document.getElementById('player-health').innerHTML = `
+        <div class="health" style="width: ${playerHP}%; background: ${playerHP > 30 ? '#34d399' : 'red'}"></div>
+        <div style="margin-top:5px">${playerPokemon.name} HP: ${playerHP}</div>
+      `;
+
+      document.getElementById('enemy-health').innerHTML = `
+        <div class="health" style="width: ${enemyPokemon.hp}%; background: ${enemyPokemon.hp > 30 ? '#a78bfa' : 'red'}"></div>
+        <div style="margin-top:5px">${enemyPokemon.name} HP: ${enemyPokemon.hp}</div>
+      `;
+    }
+
+    function endBattle(won) {
+      document.getElementById('battle-screen').classList.add('hidden');
+      document.getElementById('result-screen').classList.remove('hidden');
+      document.getElementById('result-message').innerText = won
+        ? "Let’s gooo! That was too easy."
+        : "Dang, that hurt. Gotta bounce back.";
+    }
+
+    document.getElementById('restart-btn').onclick = function () {
+      playerHP = 100;
+      enemyPokemon.hp = 100;
+      document.getElementById('result-screen').classList.add('hidden');
+      document.getElementById('title-screen').classList.remove('hidden');
+    };
+  </script>
+</body>
+</html>
